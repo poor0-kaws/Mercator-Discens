@@ -40,8 +40,7 @@ def result (self, lever):
 
     self.q_table[lever] = self.count_wins[lever] / self.attempts[lever] # Updating the probabilites for the pulled lever
     
-class Casino: 
-    
+
 
 
     
