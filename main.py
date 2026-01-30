@@ -6,8 +6,9 @@ def __init__(self, num_lever=3):
     self.epsilon = 1 # willingnesss to explore different options
     self.eps_decay = 0.995 # willingness decreases over long time --> switch to exploit
     self.min_eps = 0.1
-    self.count_win_loss = np.zeros(num_lever)
+    self.count_wins = np.zeros(num_lever)
     self.reward = np.zeros(num_lever)
+    self.attempts = np.zeros(num_lever)
     
 
 def choose_action(self, num_lever=3): # Choose action 
@@ -29,14 +30,15 @@ def result (self, lever):
     """ Gives reward for the action and updates the lever probabilites"""
     
     if random.random() < self.q_table[lever]: 
-        self.count_win_loss[lever]  += 1 # Win
+        self.attempts[lever] += 1 
+        self.count_wins[lever]  += 1 # Win
         self.reward[lever] += 100
     else: 
-        self.count_win_loss[lever] += -1 # Loss
+        self.attempts[lever] += 1 
+        self.count_wins[lever] += -1 # Loss
         self.reward[lever] -=100
 
-    
-
+    self.q_table[lever] = self.count_wins[lever] / self.attempts[lever] # Updating the probabilites for the pulled lever
     
     
 
