@@ -57,11 +57,12 @@ for episode in range (1000):
     result = env.pull_lever(action)
     agent.learn(action, result)
 
-# Print Results
+# Formatting for results
 def format_values(value): 
     formated = "{:.2f}".format(value)
     return formated
 
+# Print Results
 for i in range(3): 
     
     true_prob = format_values(env._Casino__true_probs[i])
