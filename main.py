@@ -51,14 +51,24 @@ class Agent:
 env = Casino()
 agent = Agent()
 
+# Multiple Episodes
 for episode in range (1000): 
     action = agent.choose_action(num_lever=3)
     result = env.pull_lever(action)
     agent.learn(action, result)
 
-print(f"True Lever Probabilities: {env._Casino__true_probs}")
-print(f"Agent Lever Probability Estimates: {agent.q_table}")
-print(f"Times Pulled: {agent.attempts}")
+# Print Results
+def format_values(value): 
+    formated = "{:.2f}".format(value)
+    return formated
+
+for i in range(3): 
+    
+    true_prob = format_values(env._Casino__true_probs[i])
+    agent_prob = format_values(agent.q_table[i])
+    attempts = agent.attempts[i]
+    print(f"Slot Machine {i+1} | True Probability: {true_prob} | Agent Probability: {agent_prob} | Total Attempts: {attempts}")
+
     
 
 
