@@ -6,7 +6,7 @@ class Casino:
         self.__true_probs = np.random.uniform(0,1,num_lever) # True Probs of levers 
     
     def pull_lever(self, lever): 
-        if random.random() < self.__true_probs:
+        if random.random() < self.__true_probs[lever]:
             return 1 # win
         else: 
            return 0 # los
@@ -43,7 +43,7 @@ class Agent:
         else: 
             self.count_wins[lever] += 0
         
-        reduce_exploration()      
+        self.reduce_exploration()  
         
         self.q_table[lever] = self.count_wins[lever] / self.attempts[lever] # Updating the probabilites for the pulled lever
         
@@ -51,12 +51,14 @@ class Agent:
 env = Casino()
 agent = Agent()
 
-for episode in range (100): 
+for episode in range (1000): 
     action = agent.choose_action(num_lever=3)
     result = env.pull_lever(action)
     agent.learn(action, result)
 
-
+print(f"True Lever Probabilities: {env._Casino__true_probs}")
+print(f"Agent Lever Probability Estimates: {agent.q_table}")
+print(f"Times Pulled: {agent.attempts}")
     
 
 
