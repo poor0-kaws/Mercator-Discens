@@ -62,7 +62,7 @@ def format_values(value):
     formated = "{:.2f}".format(value)
     return formated
 
-# Print Result
+# Print Results
 for i in range(3): 
     
     true_prob = format_values(env._Casino__true_probs[i])
