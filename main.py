@@ -3,10 +3,21 @@ import random
 
 class Casino: 
     def __init__(self, num_lever=3):
-        self.q_table = np.zeros(num_lever)
+        self.__true_probs = np.random.uniform(0,1,num_lever) # True Probs of levers 
+        self.q_table = np.zeros(num_lever) # Estimated Agent Probs of levers 
         self.count_wins = np.zeros(num_lever)
-        self.reward = np.zeros(num_lever)
         self.attempts = np.zeros(num_lever)
+    
+    def pull_lever(self, num_lever=3): 
+        if random.random < self.__true_probs:
+            self.attempts[lever] += 1 
+            self.count_wins[lever]  += 1 # Win
+            return lever
+        else: 
+            self.attempts[lever] += 1 
+            self.count_wins[lever]  -= 1 # Loss
+            return lever
+        
         
 class Agent: 
     def __init__(self, num_lever=3):
@@ -14,7 +25,7 @@ class Agent:
         self.eps_decay = 0.995 # willingness decreases over long time --> switch to exploit
         self.min_eps = 0.1
            
-    def choose_action(self, num_lever=3): # Choose action 
+    def choose_action(self, num_lever=3): # Choose action (Exploration or Exploitation)
         
         # Promote Exploration 
         if random.random() < self.epsilon:
@@ -27,28 +38,17 @@ class Agent:
         self.epsilon =  max(self.min_eps, self.epsilon * self.eps_decay)
 
     def learn(self, lever): 
-        """ Gives reward for the action and updates the lever probabilites"""
-        
-        if random.random() < self.q_table[lever]: 
-            self.attempts[lever] += 1 
-            self.count_wins[lever]  += 1 # Win
-            self.reward[lever] += 100
-        else: 
-            self.attempts[lever] += 1 
-            self.count_wins[lever] += -1 # Loss
-            self.reward[lever] -=100
-        
+        """Reduces exploration & updates the lever probabilites"""
         reduce_exploration()      
-    
         self.q_table[lever] = self.count_wins[lever] / self.attempts[lever] # Updating the probabilites for the pulled lever
         
 
-env = casino()
+env = Casino()
 agent = Agent()
 
 for episode in range (100): 
     action = agent.choose_action(num_lever=3)
-    learn = casino.result(action)
+    learn = agent.result(action)
 
 
     
