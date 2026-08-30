@@ -1,49 +1,87 @@
-# Reinforcement Learning: Multi-Armed Bandit
+# Multi-Armed Bandit for Trading Strategy Selection
 
-This project implements a simple **Multi-Armed Bandit** agent from scratch using Python. It demonstrates the fundamental trade-off between **Exploration** (trying new things) and **Exploitation** (sticking with what works) in Reinforcement Learning.
+Suppose you have several trading strategies, but you can run only one each day. Do you keep using the strategy that has paid the most so far, or test another one that might turn out better?
 
-## 🧠 Core Concepts
+That choice is the multi-armed bandit problem. This project teaches one solution, called epsilon-greedy, by applying it to a small simulated financial market.
 
-### The Environment (`Casino`)
-- Simulates a row of 3 slot machines ("levers").
-- Each lever has a secret, fixed probability of winning (a "true probability").
-- When pulled, a lever returns a `1` (Win) or `0` (Loss) based on this probability.
+## What the program models
 
-### The Agent
-- **Goal**: Find and pull the lever with the highest win rate to maximize rewards.
-- **Strategy**: **Epsilon-Greedy**
-    - **Exploration ($\epsilon$)**: With probability $\epsilon$, the agent picks a random lever to gather data.
-    - **Exploitation**: Otherwise, it picks the lever with the highest estimated win rate so far.
-    - **Decay**: Over time, $\epsilon$ decreases, meaning the agent explores less and exploits more as it learns.
+The example contains three strategies:
 
-## 🛠️ Code Structure
+| Strategy | Hidden average daily return | Daily volatility |
+| --- | ---: | ---: |
+| Trend Following | 0.080% | 1.000% |
+| Mean Reversion | 0.050% | 0.700% |
+| Defensive | 0.020% | 0.300% |
 
-- **`Casino` Class**: initialized with `num_levers=3`. Randomly assigns a "true probability" to each lever.
-- **`Agent` Class**:
-    - `choose_action()`: Decides whether to explore or exploit.
-    - `learn()`: Updates the estimated probability of the chosen lever based on the result.
-    - Formula: $Estimate = \frac{Total Wins}{Total Attempts}$
+Think of each strategy as one arm of the bandit. On every simulated trading day, the agent follows this loop:
 
-## 🚀 How to Run
+1. Pick a strategy.
+2. Observe only that strategy's return.
+3. Update its estimated average return.
+4. Repeat with slightly less random exploration.
 
-1. Ensure you have NumPy installed:
-   ```bash
-   pip install numpy
-   ```
+The hidden averages let us check the agent's work after the simulation. The agent can't read them while learning.
 
-2. Run the simulation:
-   ```bash
-   python main.py
-   ```
+## Exploration and exploitation
 
-## 📊 Sample Output
+Epsilon is the chance that the agent explores. An epsilon of `1.0` means it always tries a random strategy; an epsilon of `0.05` means it explores on roughly 5 out of every 100 days.
 
-After 1000 episodes (pulls), the program prints a comparison between the **True Probability** (hidden from the agent) and the **Agent's Learned Probability**.
+When the agent doesn't explore, it exploits what it has learned by choosing the strategy with the highest estimated average return. Its estimate is a running average, so every observed day counts without storing a long return history:
 
 ```text
-Slot Machine 1 | True Probability: 0.12 | Agent Probability: 0.15 | Total Attempts: 64
-Slot Machine 2 | True Probability: 0.78 | Agent Probability: 0.76 | Total Attempts: 852
-Slot Machine 3 | True Probability: 0.34 | Agent Probability: 0.31 | Total Attempts: 84
+new estimate = old estimate + (new return - old estimate) / number of observations
 ```
 
-*Note: The agent successfully identifies Slot Machine 2 as the best option and allocates the vast majority of its attempts to it.*
+## Run it
+
+You need Python 3.10 or newer. The project uses only Python's standard library, so there are no packages to install.
+
+```bash
+python3 main.py
+```
+
+The random seed is fixed, which makes the example repeatable. A run prints the simulated portfolio value, the return estimates, and how often the agent selected each strategy.
+
+```text
+Simulated trading days: 1000
+Starting portfolio: $10,000.00
+Ending portfolio:   $28,395.10
+
+Strategy         | Hidden mean | Learned mean | Days selected
+-----------------|-------------|--------------|--------------
+Trend Following  |      0.080% |       0.120% |           863
+Mean Reversion   |      0.050% |       0.039% |            60
+Defensive        |      0.020% |       0.038% |            77
+
+Agent's preferred strategy: Trend Following
+```
+
+## Read the code
+
+The program lives in [`main.py`](main.py):
+
+- `MarketStrategy` describes one simulated strategy's average return and volatility.
+- `SimulatedMarket` reveals a return only for the selected strategy.
+- `EpsilonGreedyAgent` chooses strategies and learns their running averages.
+- `run_simulation` connects the market and the agent for a chosen number of days.
+
+The small interface matters. The learning loop only asks the market for one return and tells the agent what happened; it doesn't need to know how either class works inside.
+
+[`test_main.py`](test_main.py) checks the running-average math and confirms that one market choice happens per simulated day. Run it with:
+
+```bash
+python3 -m unittest -v
+```
+
+## Try your own experiment
+
+Edit the values inside `build_default_simulation()` to add strategies or change their return patterns. You can also change the seed, number of days, or starting portfolio value inside `main()`.
+
+Try making two strategies almost equal. The agent will need more observations to tell them apart. Then raise `minimum_epsilon` and watch it keep exploring even after it finds a favorite.
+
+## What this does not prove
+
+This is a teaching simulation, not a trading system or financial advice. It assumes that each strategy's average return and volatility stay fixed, daily returns follow a normal distribution, and switching strategies costs nothing. Real markets change over time; they also include fees, slippage, taxes, liquidity limits, and losses that don't fit a normal distribution.
+
+A production research project would need historical out-of-sample testing, transaction costs, risk limits, and a model that can react when market conditions change.
