@@ -1,4 +1,4 @@
-# Multi-Armed Bandit for Trading Strategy Selection
+# Mercator Discens
 
 Suppose you have several trading strategies, but you can run only one each day. Do you keep using the strategy that has paid the most so far, or test another one that might turn out better?
 
