@@ -57,6 +57,8 @@ Defensive        |      0.020% |       0.038% |            77
 Agent's preferred strategy: Trend Following
 ```
 
+In this 1,000-day run, the portfolio returned about 184%. The agent selected Trend Following on 863 days and finished with it as the preferred strategy.
+
 ## Read the code
 
 The program lives in [`main.py`](main.py):
